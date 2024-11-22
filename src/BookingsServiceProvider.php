@@ -27,6 +27,11 @@ class BookingsServiceProvider extends ServiceProvider
         $this->loadViewsFrom(__DIR__.'/resources/views', 'bookings');
         $this->loadMigrationsFrom(__DIR__.'/database/migrations');
         $this->mergeConfigFrom(__DIR__.'/config/bookings.php', 'bookings');
+        $this->extendUserModel();
+
+        if(file_exists($file = __DIR__.'/Helpers/helpers.php')){
+            require $file;
+        }
 
         // Register command
         //if($this->app->runningInConsole()){
@@ -34,5 +39,16 @@ class BookingsServiceProvider extends ServiceProvider
         //        DoSomething::class
         //    ]);
         //}
+    }
+
+    protected function extendUserModel()
+    {
+        // Retrieve the User model class from the configuration
+        $userModelClass = config('auth.providers.users.model', \App\Models\User::class);
+
+        // Use model macros to add relationships dynamically
+        $userModelClass::macro('bookings', function () {
+            return $this->hasMany(\Davidle90\Bookings\app\Models\Booking::class, 'user_id');
+        });
     }
 }
