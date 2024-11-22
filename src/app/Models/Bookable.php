@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Bookable extends Model
 {
-    use HasFactory, Categorizable;
+    use HasFactory;
 
     protected $fillable = [
         'type',
