@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Booking extends Model
 {
-    use HasFactory, Categorizable;
+    use HasFactory;
 
     protected $fillable = [
         'resource_id',

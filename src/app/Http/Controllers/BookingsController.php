@@ -10,7 +10,7 @@ class BookingsController extends Controller
     public function index()
     {
         $bookable = Bookable::find(1);
-        $bookings = $bookable->bookings();
+        $bookings = $bookable ? $bookable->bookings : null;
 
         return view('bookings::pages.admin.bookings.index', [
             'bookings' => $bookings
@@ -22,9 +22,10 @@ class BookingsController extends Controller
         return view('bookings::pages.admin.bookings.edit');
     }
 
-    public function edit(Request $request)
+    public function edit($id)
     {
-        $booking = '';
+        $booking = Booking::find($id);
+
         return view('bookings::pages.admin.bookings.edit', [
             'booking' => $booking
         ]);
@@ -62,28 +63,5 @@ class BookingsController extends Controller
         ];
 
         return response()->json($response);
-    }
-
-    public function test()
-    {
-        $room = Bookable::create([
-            'type' => 'room',
-            'name' => 'Conference Room A',
-            'attributes' => [
-                'capacity' => 10,
-                'location' => 'First Floor',
-            ],
-        ]);
-        
-        $event = Bookable::create([
-            'type' => 'event',
-            'name' => 'Team Meeting',
-            'attributes' => [
-                'date' => '2024-11-25',
-                'location' => 'Main Hall',
-            ],
-        ]);
-
-        return 'room and event created';
     }
 }
