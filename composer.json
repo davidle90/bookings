@@ -1,0 +1,25 @@
+{
+    "name": "davidle90/bookings",
+    "description": "bookings package",
+    "type": "package",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Davidle90\\Bookings\\": "src/"
+        }
+    },
+    "extra":{
+        "laravel":{
+            "providers":[
+                "Davidle90\\Bookings\\BookingsServiceProvider"
+            ]
+        }
+    },
+    "authors": [
+        {
+            "name": "david le"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {}
+}
