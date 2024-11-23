@@ -114,7 +114,7 @@ class BookablesController extends Controller
             }
         }
 
-        return view('bookings.available-slots', compact('availableSlots'));
+        return view('bookings::pages.admin.bookables.available_slots', compact('availableSlots'));
     }
 
 }

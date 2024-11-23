@@ -21,15 +21,13 @@
 <div class="w-1/6 p-5 border-r">
     <ul class="mx-2 flex flex-col gap-2">
         <li>
-            <a href="{{ route('admin.index') }}" class="text-blue-600 hover:text-blue-800">
-                Home
-            </a>
-        </li>
-        <li>
             <a href="{{ route('admin.bookings.create') }}" class="text-blue-600 hover:text-blue-800">Create</a>
         </li>
         <li>
             <a href="{{ route('admin.bookings.bookables.index') }}" class="text-blue-600 hover:text-blue-800">Bookables</a>
+        </li>
+        <li>
+            <a href="{{ route('admin.bookings.availabilities.index') }}" class="text-blue-600 hover:text-blue-800">Availabilities</a>
         </li>
     </ul>
 </div>
@@ -77,7 +75,7 @@
                     $date = \Carbon\Carbon::create($year, $month, $day)->format('Y-m-d');
                     $dayBookings = $bookings->get($date) ?? [];
                 @endphp
-                <div class="border rounded h-24 p-2 flex flex-col justify-between">
+                <div class="border rounded h-24 p-2 flex flex-col justify-between cursor-pointer hover:bg-blue-50">
                     <div class="text-gray-700 font-semibold">{{ $day }}</div>
                     @foreach ($dayBookings as $booking)
                         <div class="text-xs bg-blue-500 text-white rounded px-2 py-1 mt-1">

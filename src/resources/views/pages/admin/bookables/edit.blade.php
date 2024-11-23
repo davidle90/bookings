@@ -36,7 +36,7 @@
 
 @section('sidebar')
     <div class="w-1/6 p-5 border-r">
-        <ul class="mx-2">
+        <ul class="mx-2 flex flex-col gap-2">
             <li>
                 <a href="{{ route('admin.bookings.bookables.index') }}" class="text-blue-600 hover:text-blue-800">
                     Back

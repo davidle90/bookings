@@ -17,7 +17,7 @@
             <svg class="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
             </svg>
-            <span class="ms-1 text-sm font-medium text-gray-500 md:ms-2">Bookables</span>
+            <span class="ms-1 text-sm font-medium text-gray-500 md:ms-2">Availabilities</span>
         </div>
     </li>
 @endsection
@@ -31,7 +31,7 @@
                 </a>
             </li>
             <li>
-                <a href="{{ route('admin.bookings.bookables.create') }}" class="text-blue-600 hover:text-blue-800">Create</a>
+                <a href="{{ route('admin.bookings.availabilities.create') }}" class="text-blue-600 hover:text-blue-800">Create</a>
             </li>
         </ul>
     </div>
@@ -42,15 +42,21 @@
         <table class="w-full text-sm text-left rtl:text-right text-gray-500">
             <thead class="text-xs text-gray-800 uppercase bg-gray-50">
                 <tr>
-                    <th scope="col" class="px-6 py-3">Type</th>
-                    <th scope="col" class="px-6 py-3">Name</th>
+                    <th scope="col" class="px-6 py-3">Bookable</th>
+                    <th scope="col" class="px-6 py-3">Duration</th>
+                    <th scope="col" class="px-6 py-3">Day of week</th>
+                    <th scope="col" class="px-6 py-3">Start</th>
+                    <th scope="col" class="px-6 py-3">End</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach($bookables as $bookable)
-                    <tr class="go-to-url cursor-pointer bg-white border-b" data-url="{{ route('admin.bookings.bookables.edit', ['id' => $bookable->id]) }}">
-                        <td class="px-6 py-4">{{ $bookable->type }}</td>
-                        <td class="px-6 py-4">{{ $bookable->name }}</td>
+                @foreach($availabilities as $availability)
+                    <tr class="go-to-url cursor-pointer bg-white border-b" data-url="{{ route('admin.bookings.availabilities.edit', ['id' => $availability->id]) }}">
+                        <td class="px-6 py-4">{{ $availability->bookable->name }}</td>
+                        <td class="px-6 py-4">{{ $availability->slot_duration }} min</td>
+                        <td class="px-6 py-4">{{ $availability->day_of_week }}</td>
+                        <td class="px-6 py-4">{{ $availability->start_time }}</td>
+                        <td class="px-6 py-4">{{ $availability->end_time }}</td>
                     </tr>
                 @endforeach
             </tbody>
@@ -59,5 +65,4 @@
 @endsection
 
 @section('scripts')
-    @include('bookings::includes.scripts.go-to-url')
 @endsection
