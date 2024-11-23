@@ -28,4 +28,9 @@ class Bookable extends Model
     {
         return $this->morphMany(Booking::class, 'resource');
     }
+
+    public function availabilities()
+    {
+        return $this->hasMany(BookableAvailability::class);
+    }
 }

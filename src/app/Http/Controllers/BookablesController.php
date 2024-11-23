@@ -92,4 +92,29 @@ class BookablesController extends Controller
 
         return response()->json($response);
     }
+
+    public function showAvailability(Request $request, Bookable $bookable, $day)
+    {
+        $availabilities = $bookable->availabilities()->where('day_of_week', $day)->get();
+        $availableSlots = [];
+
+        foreach ($availabilities as $availability) {
+            $slots = $availability->generateTimeSlots();
+
+            foreach ($slots as $slot) {
+                // Check if the slot is already booked
+                $isBooked = $bookable->bookings()
+                    ->where('start_time', $request->date . ' ' . $slot['start'])
+                    ->where('end_time', $request->date . ' ' . $slot['end'])
+                    ->exists();
+
+                if (!$isBooked) {
+                    $availableSlots[] = $slot;
+                }
+            }
+        }
+
+        return view('bookings.available-slots', compact('availableSlots'));
+    }
+
 }
