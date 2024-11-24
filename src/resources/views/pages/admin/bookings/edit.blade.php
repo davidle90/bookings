@@ -4,6 +4,7 @@
 @endsection
 
 @section('modals')
+    @include('bookings::partials.booking.modals.time_slots')
 @endsection
 
 @section('breadcrumbs')

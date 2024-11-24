@@ -34,6 +34,7 @@ Route::group(['middleware' => ['web', 'auth', 'admin']], function () {
     Route::post('/admin/bookings/exceptions/delete', [ExceptionsController::class, 'delete'])->name('admin.bookings.exceptions.delete');
 
     Route::get('/admin/bookings/get_bookings', [BookingsController::class, 'get_bookings'])->name('admin.bookings.get_bookings');
+    Route::get('/admin/bookings/get_time_slots', [BookingsController::class, 'get_time_slots'])->name('admin.bookings.get_time_slots');
 
     Route::get('/admin/bookings/availabilities/preview/{bookable_id}/{day_of_week}', [AvailabilitiesController::class, 'preview'])->name('admin.bookings.availabilities.preview');
 });

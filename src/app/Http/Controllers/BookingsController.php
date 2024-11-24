@@ -5,6 +5,7 @@ use Davidle90\Bookings\app\Models\Bookable;
 use Davidle90\Bookings\app\Models\Booking;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use DateTime;
 use Davidle90\Bookings\app\Helpers\bookings_helper;
 use Davidle90\Bookings\app\Models\BookableAvailability;
 
@@ -112,6 +113,37 @@ class BookingsController extends Controller
 
         $response = [
             'grid_data' => $html
+        ];
+
+        return response()->json($response);
+    }
+
+    public function get_time_slots(Request $request)
+    {
+        $bookable_id = $request->input('bookable_id');
+        $date = $request->input('bookable_date');
+        $day_of_week = (new DateTime($date))->format('l');
+
+        $availability = BookableAvailability::where('bookable_id', $bookable_id)
+            ->where('day_of_week', strtolower($day_of_week))
+            ->first();
+
+        if (!$availability) {
+            $response = [
+                'status' => 0,
+                'message' => 'No available timeslot found.'
+            ];
+
+            return response()->json($response);
+        }
+
+        $time_slots = $availability->generateTimeSlots();
+
+        $response = [
+            'status' => 1,
+            'html' => view('bookings::partials.booking.time_slot_select', [
+                'time_slots' => $time_slots
+            ])->render(),
         ];
 
         return response()->json($response);

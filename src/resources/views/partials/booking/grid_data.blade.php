@@ -26,6 +26,7 @@
             $availability = $selected_bookable ? $selected_bookable->availabilities->firstWhere('day_of_week', $day_of_week) : null; // Find matching availability for the day
             $timeSlotsAvailable = $availability ? $availability->generateTimeSlots() : []; // Generate time slots for the availability
         @endphp
+        
         <div class="border rounded h-24 p-2 flex flex-col justify-between cursor-pointer hover:bg-blue-50 @if(isset($availability) && $availability->day_of_week == $day_of_week) get_time_slots @endif" data-date="{{ $formatted_date }}">
             <div class="text-gray-700 font-semibold">{{ $day }}</div>
 
@@ -47,18 +48,45 @@
     @endfor
 </div>
 
-@section('modals')
-    @include('bookings::partials.booking.modals.time_slots')
-@endsection
-
 @push('scripts')
     <script>
         $(document).ready(function () {
-            var modal = $('#timeSlotsModal');
+            var $modal = $('#time_slots_modal');
 
             $(document).on('click', '.get_time_slots', function () {
-                console.log('asd'); // This should log to the console when a .get_time_slots element is clicked
+
+                let bookable_id = $('input[name=bookable]:checked').val();
+                let bookable_date = $(this).data('date');
+
+                $modal.fadeIn();
+
+                get_time_slots(bookable_id, bookable_date);
             });
+
+            $modal.on('click', '.close_modal', function () {
+                $modal.fadeOut();
+            });
+
+            function get_time_slots(bookable_id, bookable_date){
+                $.ajax({
+                    url: '{{ route('admin.bookings.get_time_slots') }}',
+                    method: 'GET',
+                    data: {
+                        bookable_id,
+                        bookable_date
+                    },
+                    cache: false,
+                    dataType: 'json',
+                    success: function (res) {
+                        if(res.status == 1){
+                            $modal.find('#time_slot_data').html(res.html);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error fetching data:', error); 
+                    }
+                });
+            }
         });
     </script>
 @endpush
