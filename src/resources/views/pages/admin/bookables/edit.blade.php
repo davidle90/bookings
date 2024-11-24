@@ -83,9 +83,6 @@
                 </li>
             @endif
         </ul>
-        <div class="action-message mt-3 d-flex">
-        </div>
-
     </div>
 @endsection
 

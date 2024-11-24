@@ -18,28 +18,26 @@
 @endsection
 
 @section('sidebar')
-    <div class="w-1/6 p-5 border-r">
-        <ul class="mx-2 flex flex-col gap-2">
-            <li>
-                <a href="{{ route('admin.bookings.create') }}" class="text-blue-600 hover:text-blue-800">Create</a>
-            </li>
-            <li>
-                <a href="{{ route('admin.bookings.bookables.index') }}" class="text-blue-600 hover:text-blue-800">Bookables</a>
-            </li>
-            <li>
-                <a href="{{ route('admin.bookings.availabilities.index') }}" class="text-blue-600 hover:text-blue-800">Availabilities</a>
-            </li>
-            <li>
-                <a href="{{ route('admin.bookings.exceptions.index') }}" class="text-blue-600 hover:text-blue-800">Exceptions</a>
-            </li>
-        </ul>
-    </div>
+<div class="w-1/6 p-5 border-r">
+    <ul class="mx-2 flex flex-col gap-2">
+        <li>
+            <a href="{{ route('admin.bookings.create') }}" class="text-blue-600 hover:text-blue-800">Booking</a>
+        </li>
+        <li>
+            <a href="{{ route('admin.bookings.bookables.index') }}" class="text-blue-600 hover:text-blue-800">Bookables</a>
+        </li>
+        <li>
+            <a href="{{ route('admin.bookings.availabilities.index') }}" class="text-blue-600 hover:text-blue-800">Availabilities</a>
+        </li>
+        <li>
+            <a href="{{ route('admin.bookings.exceptions.index') }}" class="text-blue-600 hover:text-blue-800">Exceptions</a>
+        </li>
+    </ul>
+</div>
 @endsection
 
 @section('content')
-    <div class="p-5">
-        <h1>BOOKINGS</h1>
-    </div>
+    @include('bookings::partials.calendar')
 @endsection
 
 @section('scripts')

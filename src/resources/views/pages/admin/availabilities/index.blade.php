@@ -51,7 +51,7 @@
             </thead>
             <tbody>
                 @foreach($availabilities as $availability)
-                    <tr class="go-to-url cursor-pointer bg-white border-b" data-url="{{ route('admin.bookings.availabilities.edit', ['id' => $availability->id]) }}">
+                    <tr class="go-to-url cursor-pointer bg-white border-b" data-url="{{ route('admin.bookings.availabilities.preview', ['bookable_id' => $availability->bookable->id, 'day_of_week' => $availability->day_of_week]) }}">
                         <td class="px-6 py-4">{{ $availability->bookable->name }}</td>
                         <td class="px-6 py-4">{{ $availability->slot_duration }} min</td>
                         <td class="px-6 py-4">{{ $availability->day_of_week }}</td>
@@ -65,4 +65,5 @@
 @endsection
 
 @section('scripts')
+    @include('bookings::includes.scripts.go-to-url')
 @endsection

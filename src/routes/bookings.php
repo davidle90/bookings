@@ -1,5 +1,6 @@
 <?php
 
+use Davidle90\Bookings\app\Http\Controllers\ApiController;
 use Davidle90\Bookings\app\Http\Controllers\AvailabilitiesController;
 use Davidle90\Bookings\app\Http\Controllers\BookingsController;
 use Davidle90\Bookings\app\Http\Controllers\BookablesController;
@@ -31,4 +32,8 @@ Route::group(['middleware' => ['web', 'auth', 'admin']], function () {
     Route::get('/admin/bookings/exceptions/edit/{id}', [ExceptionsController::class, 'edit'])->name('admin.bookings.exceptions.edit');
     Route::post('/admin/bookings/exceptions/store', [ExceptionsController::class, 'store'])->name('admin.bookings.exceptions.store');
     Route::post('/admin/bookings/exceptions/delete', [ExceptionsController::class, 'delete'])->name('admin.bookings.exceptions.delete');
+
+    Route::get('/admin/bookings/get_bookings', [BookingsController::class, 'get_bookings'])->name('admin.bookings.get_bookings');
+
+    Route::get('/admin/bookings/availabilities/preview/{bookable_id}/{day_of_week}', [AvailabilitiesController::class, 'preview'])->name('admin.bookings.availabilities.preview');
 });

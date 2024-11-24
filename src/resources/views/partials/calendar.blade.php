@@ -1,14 +1,14 @@
 <div class="md:p-5">
-    <h1 class="text-2xl font-bold mb-6">Bookings</h1>
+    <h1 class="text-2xl font-bold mb-6">Calendar</h1>
 
     <!-- Month Navigation -->
     <div class="flex justify-between items-center mb-6">
-        <a href="{{ route('admin.bookings.index', ['month' => $month - 1, 'year' => $year]) }}" 
+        <a href="{{ route($route_name, ['month' => $month - 1, 'year' => $year]) }}" 
         class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 text-gray-700">
             &larr; Previous
         </a>
         <h2 class="text-lg font-semibold">{{ \Carbon\Carbon::create($year, $month)->format('F Y') }}</h2>
-        <a href="{{ route('admin.bookings.index', ['month' => $month + 1, 'year' => $year]) }}" 
+        <a href="{{ route($route_name, ['month' => $month + 1, 'year' => $year]) }}" 
         class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 text-gray-700">
             Next &rarr;
         </a>
@@ -39,7 +39,7 @@
                 $date = \Carbon\Carbon::create($year, $month, $day)->format('Y-m-d');
                 $dayBookings = $bookings->get($date) ?? [];
             @endphp
-            <div class="border rounded h-24 p-2 flex flex-col justify-between">
+            <div class="border rounded h-24 p-2 flex flex-col justify-between cursor-pointer hover:bg-blue-50 get_time_slots" data-date="{{ $date }}">
                 <div class="text-gray-700 font-semibold">{{ $day }}</div>
                 @foreach ($dayBookings as $booking)
                     <div class="text-xs bg-blue-500 text-white rounded px-2 py-1 mt-1">
@@ -51,3 +51,6 @@
         @endfor
     </div>
 </div>
+
+@push('scripts')
+@endpush

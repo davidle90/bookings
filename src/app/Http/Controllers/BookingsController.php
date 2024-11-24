@@ -5,46 +5,51 @@ use Davidle90\Bookings\app\Models\Bookable;
 use Davidle90\Bookings\app\Models\Booking;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Davidle90\Bookings\app\Helpers\bookings_helper;
+use Davidle90\Bookings\app\Models\BookableAvailability;
 
 class BookingsController extends Controller
 {
     public function index(Request $request)
     {
-
         // Get the current month and year (or from the request)
         $month = $request->input('month', now()->month);
         $year = $request->input('year', now()->year);
+        $bookable_id = 4;
 
-        // Get the first and last days of the month
-        $startOfMonth = Carbon::create($year, $month)->startOfMonth();
-        $endOfMonth = $startOfMonth->copy()->endOfMonth();
+        $calendar_data = bookings_helper::get_calendar_data($bookable_id, $month, $year);
 
-        // Get bookings for the month
-        $bookings = Booking::whereBetween('start_time', [$startOfMonth, $endOfMonth])
-            ->get()
-            ->groupBy(function ($booking) {
-                return Carbon::parse($booking->start_time)->format('Y-m-d');
-            });
+        $route_name = 'admin.bookings.index';
 
-        return view('bookings::pages.admin.bookings.calendar', [
-            'bookings' => $bookings,
-            'month' => $month,
-            'year' => $year,
-            'startOfMonth' => $startOfMonth,
-            'endOfMonth' => $endOfMonth,
+        return view('bookings::pages.admin.bookings.index', [
+            'bookable' => $calendar_data['bookable'],
+            'bookings' => $calendar_data['bookings'],
+            'month' => $calendar_data['month'],
+            'year' => $calendar_data['year'],
+            'startOfMonth' => $calendar_data['startOfMonth'],
+            'endOfMonth' => $calendar_data['endOfMonth'],
+            'route_name' => $route_name
         ]);
-
-        // $bookable = Bookable::find(1);
-        // $bookings = $bookable ? $bookable->bookings : null;
-
-        // return view('bookings::pages.admin.bookings.index', [
-        //     'bookings' => $bookings
-        // ]);
     }
 
     public function create()
     {
-        return view('bookings::pages.admin.bookings.edit');
+        $bookables = Bookable::get();
+
+        $month = now()->month;
+        $year = now()->year;
+
+        $calendar_data = bookings_helper::get_calendar_data(null, $month, $year);
+
+        return view('bookings::pages.admin.bookings.edit', [
+            'bookables' => $bookables,
+            'selected_bookable' => $calendar_data['bookable'],
+            'bookings' => $calendar_data['bookings'],
+            'month' => $calendar_data['month'],
+            'year' => $calendar_data['year'],
+            'startOfMonth' => $calendar_data['startOfMonth'],
+            'endOfMonth' => $calendar_data['endOfMonth'],
+        ]);
     }
 
     public function edit($id)
@@ -76,25 +81,6 @@ class BookingsController extends Controller
         ]);
     
         return redirect()->back()->with('message', 'Booking confirmed.');
-
-        // $room = Bookable::where('type', 'room')->first();
-
-        // $booking = Booking::create([
-        //     'resource_id' => $room->id,
-        //     'resource_type' => Bookable::class,
-        //     'user_id' => 1,
-        //     'start_time' => now(),
-        //     'end_time' => now()->addHours(2),
-        //     'status' => 'confirmed',
-        //     'notes' => 'Projector required',
-        // ]);
-
-        // $response = [
-        //     'status' => 1,
-        //     'message' => 'Booking has been created'
-        // ];
-
-        // return response()->json($response);
     }
 
     public function delete(Request $request)
@@ -102,6 +88,30 @@ class BookingsController extends Controller
         $response = [
             'status' => 1,
             'message' => 'Booking has been deleted'
+        ];
+
+        return response()->json($response);
+    }
+
+    public function get_bookings(Request $request)
+    {
+        $bookable_id = $request->bookable_id;
+        $month = $request->month;
+        $year = $request->year;
+
+        $calendar_data = bookings_helper::get_calendar_data($bookable_id, $month, $year);
+
+        $html = view('bookings::partials.booking.grid_data', [
+            'selected_bookable' => $calendar_data['bookable'],
+            'bookings' => $calendar_data['bookings'],
+            'month' => $calendar_data['month'],
+            'year' => $calendar_data['year'],
+            'startOfMonth' => $calendar_data['startOfMonth'],
+            'endOfMonth' => $calendar_data['endOfMonth'],
+        ])->render();
+
+        $response = [
+            'grid_data' => $html
         ];
 
         return response()->json($response);

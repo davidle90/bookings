@@ -42,6 +42,7 @@
         <table class="w-full text-sm text-left rtl:text-right text-gray-500">
             <thead class="text-xs text-gray-800 uppercase bg-gray-50">
                 <tr>
+                    <th scope="col" class="px-6 py-3">ID</th>
                     <th scope="col" class="px-6 py-3">Type</th>
                     <th scope="col" class="px-6 py-3">Name</th>
                 </tr>
@@ -49,6 +50,7 @@
             <tbody>
                 @foreach($bookables as $bookable)
                     <tr class="go-to-url cursor-pointer bg-white border-b" data-url="{{ route('admin.bookings.bookables.edit', ['id' => $bookable->id]) }}">
+                        <td class="px-6 py-4">{{ $bookable->id }}</td>
                         <td class="px-6 py-4">{{ $bookable->type }}</td>
                         <td class="px-6 py-4">{{ $bookable->name }}</td>
                     </tr>

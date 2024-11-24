@@ -12,6 +12,7 @@ class Bookable extends Model
     protected $fillable = [
         'type',
         'name',
+        'slug',
         'attributes'
     ];
 

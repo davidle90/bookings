@@ -48,14 +48,6 @@ class AvailabilitiesController extends Controller
             'slot_duration' => $request->input('slot_duration')
         ];
 
-        // $validated = $request->validate([
-        //     'days' => 'required|array',
-        //     'days.*' => 'in:monday,tuesday,wednesday,thursday,friday,saturday,sunday',
-        //     'start_time' => 'required|date_format:H:i',
-        //     'end_time' => 'required|date_format:H:i|after:start_time',
-        //     'slot_duration' => 'required|integer|min:15', // Minimum 15 minutes
-        // ]);
-
         try {
 
             DB::beginTransaction();
@@ -110,5 +102,21 @@ class AvailabilitiesController extends Controller
         ];
 
         return response()->json($response);
+    }
+
+    // Controller for Admin Panel
+    public function preview($bookableId, $dayOfWeek)
+    {
+        $availability = BookableAvailability::where('bookable_id', $bookableId)
+            ->where('day_of_week', $dayOfWeek)
+            ->first();
+
+        if (!$availability) {
+            return response()->json(['error' => 'No availability found'], 404);
+        }
+
+        $timeSlots = $availability->generateTimeSlots();
+
+        return view('bookings::pages.admin.availabilities.preview', compact('timeSlots'));
     }
 }
