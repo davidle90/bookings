@@ -5,6 +5,7 @@ use Davidle90\Bookings\app\Models\Bookable;
 use Davidle90\Bookings\app\Models\Booking;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use DateTime;
 use Davidle90\Bookings\app\Helpers\bookings_helper;
 use Davidle90\Bookings\app\Models\BookableAvailability;
@@ -64,24 +65,58 @@ class BookingsController extends Controller
 
     public function store(Request $request)
     {
+        $input = [
+            'booking_id' => $request->input('booking_id'),
+            'bookable_id' => $request->input('bookable_id'),
+            'notes' => $request->input('notes'),
+            'date' => $request->input('date')
+        ];
 
-        $validated = $request->validate([
-            'resource_id' => 'required|integer',
-            'resource_type' => 'required|string',
-            'start_time' => 'required|date_format:Y-m-d H:i',
-            'end_time' => 'required|date_format:Y-m-d H:i|after:start_time',
-        ]);
-    
-        Booking::create([
-            'resource_id' => $validated['resource_id'],
-            'resource_type' => $validated['resource_type'],
-            'user_id' => auth()->id(),
-            'start_time' => $validated['start_time'],
-            'end_time' => $validated['end_time'],
-            'status' => 'confirmed',
-        ]);
-    
-        return redirect()->back()->with('message', 'Booking confirmed.');
+        try {
+
+            DB::beginTransaction();
+
+            $bookable = Bookable::find($input['bookable_id']);
+
+            $date_array = explode('_', $input['date']);
+
+            $start_date_string = $date_array[0].' '.$date_array[1].':00';
+            $end_date_string = $date_array[0].' '.$date_array[2].':00';
+            $format = 'Y-m-d H:i:s';
+
+            $start_time = DateTime::createFromFormat($format, $start_date_string);
+            $end_time = DateTime::createFromFormat($format, $end_date_string);
+        
+            $booking = Booking::create([
+                'resource_id' => $bookable->id,
+                'resource_type' => get_class($bookable),
+                'user_id' => null,
+                'notes' => $input['notes'],
+                'start_time' => $start_time,
+                'end_time' => $end_time,
+                'status' => 'confirmed',
+            ]);
+
+            DB::commit();
+
+            $response = [
+                'status' => 1,
+                'redirect' => route('admin.bookings.index'),
+                'message' => 'Booking has been saved.'
+            ];
+
+            $request->session()->put('action_message', $response['message']);
+
+        } catch (\Exception $e) {
+            DB::rollback();
+
+            $response = [
+                'status' => 0,
+                'message' => 'Failed to save booking.'
+            ];
+        }
+
+        return response()->json($response);
     }
 
     public function delete(Request $request)
@@ -142,7 +177,8 @@ class BookingsController extends Controller
         $response = [
             'status' => 1,
             'html' => view('bookings::partials.booking.time_slot_select', [
-                'time_slots' => $time_slots
+                'time_slots' => $time_slots,
+                'date' => $date
             ])->render(),
         ];
 

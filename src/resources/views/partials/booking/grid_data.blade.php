@@ -58,13 +58,17 @@
                 let bookable_id = $('input[name=bookable]:checked').val();
                 let bookable_date = $(this).data('date');
 
-                $modal.fadeIn();
-
+                $('#time_slots_modal').removeClass('hidden').addClass('flex');
                 get_time_slots(bookable_id, bookable_date);
             });
 
             $modal.on('click', '.close_modal', function () {
-                $modal.fadeOut();
+                $('#time_slots_modal').removeClass('flex').addClass('hidden');
+            });
+
+            // Prevent closing the modal when clicking inside its content
+            $modal.on('click', '.relative', function (e) {
+                e.stopPropagation(); // Stops event propagation to the overlay
             });
 
             function get_time_slots(bookable_id, bookable_date){
