@@ -13,19 +13,26 @@ class Booking extends Model
         'resource_id',
         'resource_type',
         'user_id',
-        'start_time',
-        'end_time',
         'status',
+        'start_datetime',
+        'end_datetime',
         'notes',
     ];
 
     protected $dates = [
         'created_at',
         'updated_at',
+        'start_datetime',
+        'end_datetime'
     ];
 
     public function resource()
     {
         return $this->morphTo();
+    }
+
+    public function bookable()
+    {
+        return $this->morphTo('resource');
     }
 }

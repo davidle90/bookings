@@ -10,7 +10,7 @@ class BookablesController extends Controller
 {
     public function index()
     {
-        $bookables = Bookable::get();
+        $bookables = Bookable::paginate(25);
 
         return view('bookings::pages.admin.bookables.index', [
             'bookables' => $bookables
@@ -35,9 +35,9 @@ class BookablesController extends Controller
     {
         $input = [
             'id' => $request->input('id'),
-            'type' => $request->input('type'),
             'name' => $request->input('name'),
-            'attributes' => $request->input('attributes', [])
+            'attributes' => $request->input('attributes', []),
+            'is_active' => $request->input('is_active', 0)
         ];
 
         $attributes_test = [
@@ -51,10 +51,10 @@ class BookablesController extends Controller
 
             $bookable = Bookable::firstOrNew(['id' => $input['id']]);
 
-            $bookable->type = $input['type'];
             $bookable->name = $input['name'];
             $bookable->slug = Str::slug($input['name']);
             $bookable->attributes = $attributes_test;
+            $bookable->is_active = $input['is_active'];
             $bookable->save();
 
             DB::commit();
@@ -72,7 +72,7 @@ class BookablesController extends Controller
 
             $response = [
                 'status' => 0,
-                'message' => 'Failed to create bookable.'
+                'message' => 'Failed to create bookable.'.$e->getMessage()
             ];
         }
 

@@ -9,40 +9,28 @@ use Illuminate\Support\Facades\DB;
 use DateTime;
 use Davidle90\Bookings\app\Helpers\bookings_helper;
 use Davidle90\Bookings\app\Models\BookableAvailability;
+use Davidle90\Bookings\app\Models\BookingException;
 
 class BookingsController extends Controller
 {
     public function index(Request $request)
     {
-        // Get the current month and year (or from the request)
-        $month = $request->input('month', now()->month);
-        $year = $request->input('year', now()->year);
-        $bookable_id = 4;
-
-        $calendar_data = bookings_helper::get_calendar_data($bookable_id, $month, $year);
-
-        $route_name = 'admin.bookings.index';
+        $bookings = Booking::get();
 
         return view('bookings::pages.admin.bookings.index', [
-            'bookable' => $calendar_data['bookable'],
-            'bookings' => $calendar_data['bookings'],
-            'month' => $calendar_data['month'],
-            'year' => $calendar_data['year'],
-            'startOfMonth' => $calendar_data['startOfMonth'],
-            'endOfMonth' => $calendar_data['endOfMonth'],
-            'route_name' => $route_name
+            'bookings' => $bookings
         ]);
     }
 
     public function create()
     {
-        $bookables = Bookable::get();
+        $bookables = Bookable::where('is_active', 1)->get();
 
         $month = now()->month;
         $year = now()->year;
 
         $calendar_data = bookings_helper::get_calendar_data(null, $month, $year);
-
+        
         return view('bookings::pages.admin.bookings.edit', [
             'bookables' => $bookables,
             'selected_bookable' => $calendar_data['bookable'],
@@ -79,21 +67,31 @@ class BookingsController extends Controller
             $bookable = Bookable::find($input['bookable_id']);
 
             $date_array = explode('_', $input['date']);
+            $start_datetime = Carbon::create($date_array[0].' '.$date_array[1]);
+            $end_datetime = Carbon::create($date_array[0].' '.$date_array[2]);
 
-            $start_date_string = $date_array[0].' '.$date_array[1].':00';
-            $end_date_string = $date_array[0].' '.$date_array[2].':00';
-            $format = 'Y-m-d H:i:s';
+            $bookable_type = get_class($bookable);
 
-            $start_time = DateTime::createFromFormat($format, $start_date_string);
-            $end_time = DateTime::createFromFormat($format, $end_date_string);
+            $booking_available = bookings_helper::is_booking_available($bookable_type, $bookable->id, $start_datetime, $end_datetime);
+
+            if(!$booking_available){
+                $response = [
+                    'status' => 0,
+                    'message' => 'Bokningen är inte längre tillänglig. Vänligen välj en ny tid.'
+                ];
+
+                $request->session()->put('action_message', $response['message']);
+
+                return response()->json($response);
+            }
         
-            $booking = Booking::create([
+            Booking::create([
                 'resource_id' => $bookable->id,
-                'resource_type' => get_class($bookable),
+                'resource_type' => $bookable_type,
                 'user_id' => null,
                 'notes' => $input['notes'],
-                'start_time' => $start_time,
-                'end_time' => $end_time,
+                'start_datetime' => $start_datetime,
+                'end_datetime' => $end_datetime,
                 'status' => 'confirmed',
             ]);
 
@@ -112,7 +110,7 @@ class BookingsController extends Controller
 
             $response = [
                 'status' => 0,
-                'message' => 'Failed to save booking.'
+                'message' => 'Failed to save booking: '.$e->getMessage()
             ];
         }
 
@@ -157,23 +155,13 @@ class BookingsController extends Controller
     {
         $bookable_id = $request->input('bookable_id');
         $date = $request->input('bookable_date');
-        $day_of_week = (new DateTime($date))->format('l');
+        $formatted_date = Carbon::create($date);
+        $day_of_week = strtolower($formatted_date->format('l'));
 
-        $availability = BookableAvailability::where('bookable_id', $bookable_id)
-            ->where('day_of_week', strtolower($day_of_week))
-            ->first();
+        $availability = BookableAvailability::where('bookable_id', $bookable_id)->where('day_of_week', $day_of_week)->first();
 
-        if (!$availability) {
-            $response = [
-                'status' => 0,
-                'message' => 'No available timeslot found.'
-            ];
-
-            return response()->json($response);
-        }
-
-        $time_slots = $availability->generateTimeSlots();
-
+        $time_slots = $availability->generateTimeSlots($formatted_date);
+    
         $response = [
             'status' => 1,
             'html' => view('bookings::partials.booking.time_slot_select', [

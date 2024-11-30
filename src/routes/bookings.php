@@ -22,8 +22,7 @@ Route::group(['middleware' => ['web', 'auth', 'admin']], function () {
     Route::post('/admin/bookings/bookables/delete', [BookablesController::class, 'delete'])->name('admin.bookings.bookables.delete');
 
     Route::get('/admin/bookings/availabilities', [AvailabilitiesController::class, 'index'])->name('admin.bookings.availabilities.index');
-    Route::get('/admin/bookings/availabilities/create', [AvailabilitiesController::class, 'create'])->name('admin.bookings.availabilities.create');
-    Route::get('/admin/bookings/availabilities/edit/{id}', [AvailabilitiesController::class, 'edit'])->name('admin.bookings.availabilities.edit');
+    Route::get('/admin/bookings/availabilities/edit/{bookable_id}', [AvailabilitiesController::class, 'edit'])->name('admin.bookings.availabilities.edit');
     Route::post('/admin/bookings/availabilities/store', [AvailabilitiesController::class, 'store'])->name('admin.bookings.availabilities.store');
     Route::post('/admin/bookings/availabilities/delete', [AvailabilitiesController::class, 'delete'])->name('admin.bookings.availabilities.delete');
 
@@ -35,6 +34,4 @@ Route::group(['middleware' => ['web', 'auth', 'admin']], function () {
 
     Route::get('/admin/bookings/get_bookings', [BookingsController::class, 'get_bookings'])->name('admin.bookings.get_bookings');
     Route::get('/admin/bookings/get_time_slots', [BookingsController::class, 'get_time_slots'])->name('admin.bookings.get_time_slots');
-
-    Route::get('/admin/bookings/availabilities/preview/{bookable_id}/{day_of_week}', [AvailabilitiesController::class, 'preview'])->name('admin.bookings.availabilities.preview');
 });

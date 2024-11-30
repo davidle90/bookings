@@ -1,19 +1,19 @@
 <?php namespace Davidle90\Bookings\app\Helpers;
 
 use Carbon\Carbon;
+use DateTime;
 use Davidle90\Bookings\app\Models\Bookable;
 use Davidle90\Bookings\app\Models\BookableAvailability;
 use Davidle90\Bookings\app\Models\Booking;
+use Davidle90\Bookings\app\Models\BookingException;
 
 class bookings_helper
 {
     public static function get_calendar_data($bookable_id, $month, $year)
     {
-        // Get the first and last days of the month
         $startOfMonth = Carbon::create($year, $month)->startOfMonth();
         $endOfMonth = $startOfMonth->copy()->endOfMonth();
 
-        // Get bookings for the month
         $bookings = Booking::where('bookable_id', $bookable_id)
             ->whereBetween('start_time', [$startOfMonth, $endOfMonth])
             ->get()
@@ -35,18 +35,30 @@ class bookings_helper
         return $data;
     }
 
-    public static function get_time_slots($bookable_id, $day_of_Week)
+    public static function is_booking_available($bookable_type, $bookable_id, $start_datetime, $end_datetime)
     {
-        $availability = BookableAvailability::where('bookable_id', $bookable_id)
-            ->where('day_of_week', $day_of_Week)
-            ->first();
-
-        if (!$availability) {
-            return response()->json(['error' => 'No availability found'], 404);
+        $bookingExists = Booking::where('resource_type', $bookable_type)
+            ->where('resource_id', $bookable_id)
+            ->whereNot('status', 'canceled')
+            ->whereBetween('start_datetime', [$start_datetime, $end_datetime])
+            ->whereBetween('end_datetime', [$start_datetime, $end_datetime])
+            ->exists();
+        
+        if($bookingExists){
+            return false;
         }
 
-        $time_slots = $availability->generateTimeSlots();
+        $exceptionExists = BookingException::where('bookable_id', $bookable_id)
+            ->where('type', 'block')
+            ->whereBetween('start_datetime', [$start_datetime, $end_datetime])
+            ->whereBetween('end_datetime', [$start_datetime, $end_datetime])
+            ->exists();
+        
+        if($exceptionExists)
+        {
+            return false;
+        }
 
-        return $time_slots;
+        return true;
     }
 }

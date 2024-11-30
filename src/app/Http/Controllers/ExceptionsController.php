@@ -11,7 +11,7 @@ class ExceptionsController extends Controller
 {
     public function index()
     {
-        $exceptions = BookingException::get();
+        $exceptions = BookingException::paginate(25);
 
         return view('bookings::pages.admin.exceptions.index', [
             'exceptions' => $exceptions
@@ -40,44 +40,54 @@ class ExceptionsController extends Controller
 
     public function store(Request $request)
     {
-
-        $validated = $request->validate([
-            'bookable_id' => 'required|exists:bookables,id',
-            'exception_date' => 'required|date',
-            'start_time' => 'nullable|date_format:H:i',
-            'end_time' => 'nullable|date_format:H:i|after:start_time',
-            'type' => 'required|in:block,available',
-            'notes' => 'nullable|string|max:255',
-        ]);
-
+        $input = [
+            'id' => $request->input('id'),
+            'label' => $request->input('label'),
+            'bookable_id' => $request->input('bookable_id'),
+            'start_datetime' => $request->input('start_datetime'),
+            'end_datetime' => $request->input('end_datetime'),
+            'type' => $request->input('type'),
+            'notes' => $request->input('notes'),
+            'is_global' => $request->input('is_global', 0)
+        ];
+        
         try {
-
             DB::beginTransaction();
 
-            $exception = BookingException::create($validated);
+            $exception = BookingException::firstOrNew(['id' => $input['id']]);
+
+            $exception->label = $input['label'];
+            $exception->bookable_id = $input['bookable_id'] ?? null;
+            $exception->start_datetime = $input['start_datetime'] ?? null;
+            $exception->end_datetime = $input['end_datetime'] ?? null;
+            $exception->type = $input['type'];
+            $exception->notes = $input['notes'] ?? null;
+            $exception->is_global = $input['is_global'];
+
+            $exception->save();
 
             DB::commit();
 
             $response = [
                 'status' => 1,
                 'redirect' => route('admin.bookings.exceptions.edit', ['id' => $exception->id]),
-                'message' => 'Exception has been saved.'
+                'message' => 'Exception has been saved successfully.'
             ];
 
             $request->session()->put('action_message', $response['message']);
 
-        } catch(\Exception) {
-
+        } catch (\Exception $e) {
             DB::rollback();
 
             $response = [
                 'status' => 0,
-                'message' => 'Failed to create Exception.'
+                'message' => 'Failed to create Exception. ' . $e->getMessage()
             ];
         }
-    
+        
         return response()->json($response);
     }
+
 
     public function delete(Request $request)
     {

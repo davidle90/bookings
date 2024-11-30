@@ -21,28 +21,26 @@
         @php
             $date = \Carbon\Carbon::create($year, $month, $day);
             $formatted_date = $date->format('Y-m-d');
-            $dayBookings = $bookings->get($formatted_date) ?? [];
-            $day_of_week = strtolower($date->format('l')); // Convert to lowercase once here
-            $availability = $selected_bookable ? $selected_bookable->availabilities->firstWhere('day_of_week', $day_of_week) : null; // Find matching availability for the day
-            $timeSlotsAvailable = $availability ? $availability->generateTimeSlots() : []; // Generate time slots for the availability
+            // $dayBookings = $bookings->get($formatted_date) ?? [];
+            $day_of_week = strtolower($date->format('l'));
+            $availability = $selected_bookable ? $selected_bookable->availabilities->firstWhere('day_of_week', $day_of_week) : null;
+            $time_slots = $availability ? $availability->generateTimeSlots($date) : [];
+            $available = isset($availability) && $availability->day_of_week == $day_of_week && $date >= now()->startOfDay() && !empty($time_slots) ? true : false;
         @endphp
         
-        <div class="border rounded h-24 p-2 flex flex-col justify-between cursor-pointer hover:bg-blue-50 @if(isset($availability) && $availability->day_of_week == $day_of_week) get_time_slots @endif" data-date="{{ $formatted_date }}">
+        <div class="border rounded h-24 p-2 flex flex-col justify-between hover:bg-blue-50 @if($available) cursor-pointer get_time_slots @endif" data-date="{{ $formatted_date }}">
             <div class="text-gray-700 font-semibold">{{ $day }}</div>
 
-            @foreach ($dayBookings as $booking)
+            <!-- Admin view -->
+            {{-- @foreach ($dayBookings as $booking)
                 <div class="text-xs bg-blue-500 text-white rounded px-2 py-1 mt-1">
                     {{ $booking->resource->name ?? 'Unknown' }} <br>
                     <small>{{ \Carbon\Carbon::parse($booking->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($booking->end_time)->format('H:i') }}</small>
                 </div>
-            @endforeach
+            @endforeach --}}
 
-            @if($availability) <!-- If availability exists for this day -->
-                @if(!empty($timeSlotsAvailable))
-                    <div class="text-xs text-green-500">Available</div>
-                @else
-                    <div class="text-xs text-red-500">Fully booked</div>
-                @endif
+            @if($available)
+                <div class="text-xs text-green-500">Available</div>
             @endif
         </div>
     @endfor
@@ -52,11 +50,13 @@
     <script>
         $(document).ready(function () {
             var $modal = $('#time_slots_modal');
+            let bookable_id = null;
+            let bookable_date = null;
 
             $(document).on('click', '.get_time_slots', function () {
 
-                let bookable_id = $('input[name=bookable]:checked').val();
-                let bookable_date = $(this).data('date');
+                bookable_id = $('select[name=bookable_id]').val();
+                bookable_date = $(this).data('date');                
 
                 $('#time_slots_modal').removeClass('hidden').addClass('flex');
                 get_time_slots(bookable_id, bookable_date);
@@ -66,9 +66,8 @@
                 $('#time_slots_modal').removeClass('flex').addClass('hidden');
             });
 
-            // Prevent closing the modal when clicking inside its content
             $modal.on('click', '.relative', function (e) {
-                e.stopPropagation(); // Stops event propagation to the overlay
+                e.stopPropagation();
             });
 
             function get_time_slots(bookable_id, bookable_date){

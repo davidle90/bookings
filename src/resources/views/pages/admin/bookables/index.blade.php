@@ -43,20 +43,24 @@
             <thead class="text-xs text-gray-800 uppercase bg-gray-50">
                 <tr>
                     <th scope="col" class="px-6 py-3">ID</th>
-                    <th scope="col" class="px-6 py-3">Type</th>
                     <th scope="col" class="px-6 py-3">Name</th>
+                    <th scope="col" class="px-6 py-3">Active</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($bookables as $bookable)
                     <tr class="go-to-url cursor-pointer bg-white border-b" data-url="{{ route('admin.bookings.bookables.edit', ['id' => $bookable->id]) }}">
                         <td class="px-6 py-4">{{ $bookable->id }}</td>
-                        <td class="px-6 py-4">{{ $bookable->type }}</td>
                         <td class="px-6 py-4">{{ $bookable->name }}</td>
+                        <td class="px-6 py-4">{{ $bookable->is_active }}</td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
+
+        <div class="mt-5">
+            {{ $bookables->links() }}
+        </div>
     </div>
 @endsection
 

@@ -30,9 +30,6 @@
                     Back
                 </a>
             </li>
-            <li>
-                <a href="{{ route('admin.bookings.availabilities.create') }}" class="text-blue-600 hover:text-blue-800">Create</a>
-            </li>
         </ul>
     </div>
 @endsection
@@ -43,24 +40,36 @@
             <thead class="text-xs text-gray-800 uppercase bg-gray-50">
                 <tr>
                     <th scope="col" class="px-6 py-3">Bookable</th>
-                    <th scope="col" class="px-6 py-3">Duration</th>
-                    <th scope="col" class="px-6 py-3">Day of week</th>
-                    <th scope="col" class="px-6 py-3">Start</th>
-                    <th scope="col" class="px-6 py-3">End</th>
+                    <th scope="col" class="px-6 py-4">Duration</th>
+                    <th scope="col" class="px-6 py-3">Monday</th>
+                    <th scope="col" class="px-6 py-3">Tuesday</th>
+                    <th scope="col" class="px-6 py-3">Wednesday</th>
+                    <th scope="col" class="px-6 py-3">Thursday</th>
+                    <th scope="col" class="px-6 py-3">Friday</th>
+                    <th scope="col" class="px-6 py-3">Saturday</th>
+                    <th scope="col" class="px-6 py-3">Sunday</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach($availabilities as $availability)
-                    <tr class="go-to-url cursor-pointer bg-white border-b" data-url="{{ route('admin.bookings.availabilities.preview', ['bookable_id' => $availability->bookable->id, 'day_of_week' => $availability->day_of_week]) }}">
-                        <td class="px-6 py-4">{{ $availability->bookable->name }}</td>
-                        <td class="px-6 py-4">{{ $availability->slot_duration }} min</td>
-                        <td class="px-6 py-4">{{ $availability->day_of_week }}</td>
-                        <td class="px-6 py-4">{{ $availability->start_time }}</td>
-                        <td class="px-6 py-4">{{ $availability->end_time }}</td>
+                @foreach($bookables as $bookable)
+                    <tr class="go-to-url cursor-pointer bg-white border-b" data-url="{{ route('admin.bookings.availabilities.edit', ['bookable_id' => $bookable->id]) }}">
+                        <td class="px-6 py-4">{{ $bookable->name }}</td>
+                        <td class="px-6 py-4">{{ $bookable->availabilities && $bookable->availabilities->first() ? $bookable->availabilities->first()->slot_duration : null }}</td>
+                        <td class="px-6 py-4">{{ $bookable->availabilities && $bookable->availabilities->where('day_of_week', 'monday')->first() ? $bookable->availabilities->where('day_of_week', 'monday')->first()->start_time . ' - ' . $bookable->availabilities->where('day_of_week', 'monday')->first()->end_time : null }}</td>
+                        <td class="px-6 py-4">{{ $bookable->availabilities && $bookable->availabilities->where('day_of_week', 'tuesday')->first() ? $bookable->availabilities->where('day_of_week', 'tuesday')->first()->start_time . ' - ' . $bookable->availabilities->where('day_of_week', 'tuesday')->first()->end_time : null }}</td>
+                        <td class="px-6 py-4">{{ $bookable->availabilities && $bookable->availabilities->where('day_of_week', 'wednesday')->first() ? $bookable->availabilities->where('day_of_week', 'wednesday')->first()->start_time . ' - ' . $bookable->availabilities->where('day_of_week', 'wednesday')->first()->end_time : null }}</td>
+                        <td class="px-6 py-4">{{ $bookable->availabilities && $bookable->availabilities->where('day_of_week', 'thursday')->first() ? $bookable->availabilities->where('day_of_week', 'thursday')->first()->start_time . ' - ' . $bookable->availabilities->where('day_of_week', 'thursday')->first()->end_time : null }}</td>
+                        <td class="px-6 py-4">{{ $bookable->availabilities && $bookable->availabilities->where('day_of_week', 'friday')->first() ? $bookable->availabilities->where('day_of_week', 'friday')->first()->start_time . ' - ' . $bookable->availabilities->where('day_of_week', 'friday')->first()->end_time : null }}</td>
+                        <td class="px-6 py-4">{{ $bookable->availabilities && $bookable->availabilities->where('day_of_week', 'saturday')->first() ? $bookable->availabilities->where('day_of_week', 'saturday')->first()->start_time . ' - ' . $bookable->availabilities->where('day_of_week', 'saturday')->first()->end_time : null }}</td>
+                        <td class="px-6 py-4">{{ $bookable->availabilities && $bookable->availabilities->where('day_of_week', 'sunday')->first() ? $bookable->availabilities->where('day_of_week', 'sunday')->first()->start_time . ' - ' . $bookable->availabilities->where('day_of_week', 'sunday')->first()->end_time : null }}</td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
+
+        <div class="mt-5">
+            {{ $bookables->links() }}
+        </div>
     </div>
 @endsection
 

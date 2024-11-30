@@ -15,11 +15,11 @@ return new class extends Migration
     {
         Schema::create('bookings', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->nullable()->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->nullable()->constrained();
             $table->morphs('resource');
-            $table->dateTime('start_time');
-            $table->dateTime('end_time');
-            $table->string('status')->default('pending');
+            $table->dateTime('start_datetime');
+            $table->dateTime('end_datetime');
+            $table->enum('status', ['pending', 'confirmed', 'canceled'])->default('pending');
             $table->text('notes')->nullable();
             $table->timestamps();
         });

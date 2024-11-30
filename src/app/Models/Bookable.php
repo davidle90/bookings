@@ -10,10 +10,10 @@ class Bookable extends Model
     use HasFactory;
 
     protected $fillable = [
-        'type',
         'name',
         'slug',
-        'attributes'
+        'attributes',
+        'is_active'
     ];
 
     protected $casts = [
@@ -33,5 +33,10 @@ class Bookable extends Model
     public function availabilities()
     {
         return $this->hasMany(BookableAvailability::class);
+    }
+
+    public function exceptions()
+    {
+        return $this->hasMany(BookingException::class);
     }
 }

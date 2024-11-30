@@ -34,9 +34,9 @@
             $('.onReserve').on('click', function() {
 
                 let booking_id = $('input[name=booking_id]').val();
-                let bookable_id = $('input[name=bookable]').val();
+                let bookable_id = $('select[name=bookable_id]').val();
                 let notes = $('textarea[name=notes]').val();
-                let date = $modal.find('input[name=time_slot]').val();
+                let date = $modal.find('input[name="time_slot"]:checked').val();
 
                 $.ajax({
                     url: '{{ route('admin.bookings.store') }}',
@@ -57,6 +57,8 @@
                             if(res.redirect){
                                 window.location = res.redirect;
                             }
+                        } else if(res.status == 0){
+                            alert(res.message);
                         }
                     },
                     error: function (xhr, status, error) {

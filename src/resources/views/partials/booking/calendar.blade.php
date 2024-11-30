@@ -1,11 +1,6 @@
 <div class="md:p-5">
     <h1 class="text-2xl font-bold mb-6">Calendar</h1>
 
-    @php
-        $month = now()->month;
-        $year = now()->year;
-    @endphp
-
     <input type="hidden" name="month" value={{ $month }}>
     <input type="hidden" name="year" value={{ $year }}>
 
@@ -42,7 +37,7 @@
                 month = date.getMonth() + 1; // JavaScript months are 0-based
                 year = date.getFullYear();
 
-                bookable_id = $('input[name=bookable]:checked').val();
+                bookable_id = $('select[name=bookable_id]').val();
 
                 update_calendar(month, year, date)
                 get_grid_data(bookable_id, month, year);
@@ -53,14 +48,14 @@
                 month = date.getMonth() + 1;
                 year = date.getFullYear();
 
-                bookable_id = $('input[name=bookable]:checked').val();
+                bookable_id = $('select[name=bookable_id]').val();
 
                 update_calendar(month, year, date)
                 get_grid_data(bookable_id, month, year);
             });
 
-            $('input[name=bookable]').on('change', function () {
-                let bookable_id = $(this).val();
+            $('select[name=bookable_id]').on('change', function () {
+                bookable_id = $(this).val();
                 get_grid_data(bookable_id, month, year);
             });
         });

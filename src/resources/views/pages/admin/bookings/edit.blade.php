@@ -42,44 +42,34 @@
 
             <input type="hidden" name="booking_id" value="{{ $booking->id ?? '' }}">
 
-            <div class="p-4">
-                <h1 class="text-xl mb-5">Select Bookable:</h1>
-                <div>
-                    <ul class="grid w-full gap-6">
-                        @foreach($bookables as $bookable)
-                            <li>
-                                <input type="radio" id="{{ $bookable->slug }}" name="bookable" value="{{ $bookable->id }}" class="hidden peer"
-                                    @if(isset($booking) && $booking->resource_id == $bookable->id && $booking->resource_type == get_class($bookable))
-                                        checked
-                                    @endif
-                                />
-                                <label for="{{ $bookable->slug }}" class="inline-flex items-center justify-between w-full p-5 text-gray-500 bg-white border border-gray-200 rounded-lg cursor-pointer peer-checked:border-blue-600 peer-checked:text-blue-600 hover:text-gray-600 hover:bg-gray-100">
-                                    <div class="block">
-                                        <div class="w-full text-lg font-semibold">{{ $bookable->name }}</div>
-                                    </div>
-                                </label>
-                            </li>
-                        @endforeach
-                    </ul>
+            <div class="flex justify-between gap-4">
+                <div class="w-full">
+                    <label for="bookable_id" class="block text-lg font-medium mb-2">Select Bookable:</label>
+                    @if ($bookables->isEmpty())
+                        <p class="text-red-500">No bookable items available.</p>
+                    @else
+                        <select name="bookable_id" id="bookable_id" class="w-full border rounded p-2">
+                            <option value="">Select Bookable</option>
+                            @foreach ($bookables as $bookable)
+                                <option value="{{ $bookable->id }}">
+                                    {{ $bookable->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    @endif
+                </div>
+                <div class="w-full">
+                    <label for="notes" class="block mb-2 text-sm font-medium">Anteckning:</label>
+                    <textarea id="notes" name="notes" rows="6" class="w-full p-2.5 bg-gray-50 text-sm rounded-lg border" placeholder=""></textarea>
                 </div>
             </div>
-
-            <div class="p-4">
-                <label for="notes" class="block mb-2 text-sm font-medium">Notering:</label>
-                <textarea id="notes" name="notes" rows="6" class="w-full p-2.5 bg-gray-50 text-sm rounded-lg border-0" placeholder=""></textarea>
-            </div>
+            
 
             @include('bookings::partials.booking.calendar')
+        
         </form>
     </div>
 @endsection
 
 @section('scripts')
-    @include('bookings::includes.scripts.form')
-
-    <script>
-        $(document).ready(function () {
-            
-        });
-    </script>
 @endsection

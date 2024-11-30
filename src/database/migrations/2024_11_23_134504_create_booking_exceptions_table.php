@@ -15,14 +15,15 @@ return new class extends Migration
     {
         Schema::create('booking_exceptions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('bookable_id')->constrained()->onDelete('cascade');
-            $table->date('exception_date');
-            $table->time('start_time')->nullable();
-            $table->time('end_time')->nullable();
-            $table->string('type')->default('block'); // 'block' (unavailable) or 'available' (override availability)
-            $table->text('notes')->nullable(); 
+            $table->string('label');
+            $table->foreignId('bookable_id')->nullable()->constrained();
+            $table->enum('type', ['block', 'available'])->default('block');
+            $table->dateTime('start_datetime')->nullable();
+            $table->dateTime('end_datetime')->nullable();
+            $table->text('notes')->nullable();
+            $table->boolean('is_global')->default('false');
             $table->timestamps();
-        });
+        });        
     }
 
     /**add ProductsController.php

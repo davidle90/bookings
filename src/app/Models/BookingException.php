@@ -11,11 +11,12 @@ class BookingException extends Model
 
     protected $fillable = [
         'bookable_id', 
-        'exception_date', 
-        'start_time', 
-        'end_time', 
+        'label',
+        'start_datetime',
+        'end_datetime',
         'type', 
-        'notes'
+        'notes',
+        'is_global'
     ];
 
     protected $dates = [
@@ -26,11 +27,5 @@ class BookingException extends Model
     public function bookable()
     {
         return $this->belongsTo(Bookable::class);
-    }
-
-    public function scopeForDate($query, $bookableId, $date)
-    {
-        return $query->where('bookable_id', $bookableId)
-                     ->where('exception_date', $date);
     }
 }
