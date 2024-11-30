@@ -4,6 +4,7 @@
 @endsection
 
 @section('modals')
+    @include('bookings::partials.booking.modals.time_slots')
 @endsection
 
 @section('breadcrumbs')
@@ -24,7 +25,7 @@
 
 @section('sidebar')
     <div class="w-1/6 p-5 border-r">
-        <ul class="mx-2">
+        <ul class="mx-2 flex flex-col gap-2">
             <li>
                 <a href="{{ route('admin.bookings.index') }}" class="text-blue-600 hover:text-blue-800">
                     Back
@@ -36,7 +37,37 @@
 
 @section('content')
     <div class="p-5">
-        <h1>BOOKINGS EDITasd</h1>
+        <form id="onSaveForm" action="{{ route('admin.bookings.availabilities.store') }}" method="POST" class="space-y-4">
+            @csrf
+
+            <input type="hidden" name="booking_id" value="{{ $booking->id ?? '' }}">
+
+            <div class="flex justify-between gap-4">
+                <div class="w-full">
+                    <label for="bookable_id" class="block text-lg font-medium mb-2">Select Bookable:</label>
+                    @if ($bookables->isEmpty())
+                        <p class="text-red-500">No bookable items available.</p>
+                    @else
+                        <select name="bookable_id" id="bookable_id" class="w-full border rounded p-2">
+                            <option value="">Select Bookable</option>
+                            @foreach ($bookables as $bookable)
+                                <option value="{{ $bookable->id }}">
+                                    {{ $bookable->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    @endif
+                </div>
+                <div class="w-full">
+                    <label for="notes" class="block mb-2 text-sm font-medium">Anteckning:</label>
+                    <textarea id="notes" name="notes" rows="6" class="w-full p-2.5 bg-gray-50 text-sm rounded-lg border" placeholder=""></textarea>
+                </div>
+            </div>
+            
+
+            @include('bookings::partials.booking.calendar')
+        
+        </form>
     </div>
 @endsection
 

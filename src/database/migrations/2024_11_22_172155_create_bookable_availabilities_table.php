@@ -13,14 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('bookings', function (Blueprint $table) {
+        Schema::create('bookable_availabilities', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->nullable()->constrained();
-            $table->morphs('resource');
-            $table->dateTime('start_datetime');
-            $table->dateTime('end_datetime');
-            $table->enum('status', ['pending', 'confirmed', 'canceled'])->default('pending');
-            $table->text('notes')->nullable();
+            $table->foreignId('bookable_id')->constrained()->onDelete('cascade');
+            $table->enum('day_of_week', ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']);
+            $table->time('start_time');
+            $table->time('end_time');
+            $table->integer('slot_duration');
             $table->timestamps();
         });
     }
@@ -32,6 +31,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('bookings');
+        Schema::dropIfExists('bookable_availabilities');
     }
 };

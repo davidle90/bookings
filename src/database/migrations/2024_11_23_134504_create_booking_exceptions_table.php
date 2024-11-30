@@ -13,16 +13,17 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('bookings', function (Blueprint $table) {
+        Schema::create('booking_exceptions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->nullable()->constrained();
-            $table->morphs('resource');
-            $table->dateTime('start_datetime');
-            $table->dateTime('end_datetime');
-            $table->enum('status', ['pending', 'confirmed', 'canceled'])->default('pending');
+            $table->string('label');
+            $table->foreignId('bookable_id')->nullable()->constrained();
+            $table->enum('type', ['block', 'available'])->default('block');
+            $table->dateTime('start_datetime')->nullable();
+            $table->dateTime('end_datetime')->nullable();
             $table->text('notes')->nullable();
+            $table->boolean('is_global')->default('false');
             $table->timestamps();
-        });
+        });        
     }
 
     /**add ProductsController.php
@@ -32,6 +33,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('bookings');
+        Schema::dropIfExists('booking_exceptions');
     }
 };

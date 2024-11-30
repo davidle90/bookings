@@ -20,6 +20,8 @@
                             $('.action-message').html(`<div class="alert alert-success">`+ res.message +`</div>`);
                         }
                     } else if(res.status == 0) {
+                        $('.action-message').html(res.message);
+                         
                         if(res.errors) {
                             /** Mark form fields with errors warnings **/
                             $.each(res.errors, function (id, message) {
