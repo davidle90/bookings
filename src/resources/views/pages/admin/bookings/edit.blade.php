@@ -59,7 +59,7 @@
                     @endif
                 </div>
                 <div class="w-full">
-                    <label for="notes" class="block mb-2 text-sm font-medium">Anteckning:</label>
+                    <label for="notes" class="block mb-2 text-sm font-medium">Anteckningar:</label>
                     <textarea id="notes" name="notes" rows="6" class="w-full p-2.5 bg-gray-50 text-sm rounded-lg border" placeholder=""></textarea>
                 </div>
             </div>

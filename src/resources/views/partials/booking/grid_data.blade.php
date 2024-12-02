@@ -24,8 +24,34 @@
             // $dayBookings = $bookings->get($formatted_date) ?? [];
             $day_of_week = strtolower($date->format('l'));
             $availability = $selected_bookable ? $selected_bookable->availabilities->firstWhere('day_of_week', $day_of_week) : null;
-            $time_slots = $availability ? $availability->generateTimeSlots($date) : [];
-            $available = isset($availability) && $availability->day_of_week == $day_of_week && $date >= now()->startOfDay() && !empty($time_slots) ? true : false;
+
+            $time_slots = [];
+
+            if ($availability) {
+                $time_slots = array_merge($time_slots, $availability->generateTimeSlots($date));
+            }
+
+            $has_available_exception = false;
+
+            if($available_exceptions){
+                foreach($available_exceptions as $available_exception){
+                    $formatted_start = Carbon\Carbon::parse($available_exception->start_datetime)->format('Y-m-d');
+                    $formatted_end = Carbon\Carbon::parse($available_exception->start_datetime)->format('Y-m-d');
+                    $formatted_day = $date->endOfDay()->format('Y-m-d');
+
+                    if(($formatted_start >= $formatted_day) && ($formatted_end <= $formatted_day)){
+                        $has_available_exception = true;
+
+                        $time_slots = array_merge($time_slots, $available_exception->generateTimeSlots($date));
+                    }
+                }
+            }
+
+            $available = isset($availability) &&
+                $availability->day_of_week == $day_of_week &&
+                $date >= now()->startOfDay() && !empty($time_slots) ||
+                $has_available_exception ? true : false;
+
         @endphp
         
         <div class="border rounded h-24 p-2 flex flex-col justify-between hover:bg-blue-50 @if($available) cursor-pointer get_time_slots @endif" data-date="{{ $formatted_date }}">

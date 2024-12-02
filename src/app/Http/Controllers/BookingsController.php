@@ -39,6 +39,7 @@ class BookingsController extends Controller
             'year' => $calendar_data['year'],
             'startOfMonth' => $calendar_data['startOfMonth'],
             'endOfMonth' => $calendar_data['endOfMonth'],
+            'available_exceptions' => $calendar_data['available_exceptions'],
         ]);
     }
 
@@ -142,6 +143,7 @@ class BookingsController extends Controller
             'year' => $calendar_data['year'],
             'startOfMonth' => $calendar_data['startOfMonth'],
             'endOfMonth' => $calendar_data['endOfMonth'],
+            'available_exceptions' => $calendar_data['available_exceptions'],
         ])->render();
 
         $response = [
@@ -157,11 +159,30 @@ class BookingsController extends Controller
         $date = $request->input('bookable_date');
         $formatted_date = Carbon::create($date);
         $day_of_week = strtolower($formatted_date->format('l'));
+        $time_slots = [];
 
-        $availability = BookableAvailability::where('bookable_id', $bookable_id)->where('day_of_week', $day_of_week)->first();
+        $availability = BookableAvailability::where('bookable_id', $bookable_id)
+            ->where('day_of_week', $day_of_week)->first();
 
-        $time_slots = $availability->generateTimeSlots($formatted_date);
-    
+        $available_exceptions = BookingException::where('bookable_id', $bookable_id)
+            ->where('type', 'available')
+            ->get();
+
+
+        // Collect time slots from both
+        if ($availability) {
+            $time_slots = array_merge($time_slots, $availability->generateTimeSlots($formatted_date));
+        }
+
+
+        foreach($available_exceptions as $available_exception){
+            $formatted_exeption_date = Carbon::create($available_exception->start_datetime)->format('Y-m-d');
+
+            if(($formatted_exeption_date == $date)){
+                $time_slots = array_merge($time_slots, $available_exception->generateTimeSlots($formatted_date));
+            }
+        }
+        
         $response = [
             'status' => 1,
             'html' => view('bookings::partials.booking.time_slot_select', [

@@ -23,6 +23,12 @@ class bookings_helper
 
         $bookable = Bookable::find($bookable_id);
 
+        $available_exceptions = BookingException::where('bookable_id', $bookable_id)
+                ->where('type', 'available')
+                ->where('start_datetime', '>', $startOfMonth)
+                ->where('end_datetime', '<', $endOfMonth)
+                ->get();
+
         $data = [
             'bookable' => $bookable,
             'bookings' => $bookings,
@@ -30,6 +36,7 @@ class bookings_helper
             'year' => $year,
             'startOfMonth' => $startOfMonth,
             'endOfMonth' => $endOfMonth,
+            'available_exceptions' => $available_exceptions
         ];
 
         return $data;
