@@ -66,6 +66,12 @@ class BookableAvailability extends Model
             ->where('end_datetime', '>', $end)
             ->exists();
 
+        $available_exception = BookingException::where('bookable_id', $bookable_id)
+            ->where('type', 'available')
+            ->where('start_datetime', '>', $date)
+            ->where('end_datetime', '<', $end)
+            ->first();
+
         while ($start->lt($end)) {
             $slotStart = $start->copy();
             $slotEnd = $start->addMinutes($this->slot_duration);
@@ -82,6 +88,25 @@ class BookableAvailability extends Model
                 }
 
                 $slots[] = $new_slot;
+            }
+
+            if($available_exception){
+                $exceptionSlotStart = $available_exception->start_datetime->copy();
+                $exceptionSlotEnd = $available_exception->start_datetime->addMinutes($this->slot_duration);
+
+                if ($exceptionSlotEnd->lte($available_exception->end_datetime)) {
+
+                    $new_slot = [
+                        'start' => $exceptionSlotStart->format('H:i'),
+                        'end' => $exceptionSlotEnd->format('H:i'),
+                    ];
+
+                    if(in_array($new_slot, $unavailable_slots) || $exceptionExists){
+                        continue;
+                    }
+
+                    $slots[] = $new_slot;
+                }
             }
         }
 
