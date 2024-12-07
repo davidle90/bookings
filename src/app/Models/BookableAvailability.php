@@ -12,6 +12,7 @@ class BookableAvailability extends Model
 
     protected $fillable = [
         'bookable_id',
+        'booking_type',
         'day_of_week',
         'start_time',
         'end_time',
@@ -45,6 +46,7 @@ class BookableAvailability extends Model
 
         $bookings = Booking::where('resource_id', $bookable_id)->where('resource_type', $bookable_type)->whereNot('status', 'canceled')->get();
 
+        // Find taken time slots
         foreach($bookings as $booking){
             $booking_start_datetime = Carbon::create($booking->start_datetime);
             $booking_end_datetime = Carbon::create($booking->end_datetime);
@@ -60,18 +62,25 @@ class BookableAvailability extends Model
             }
         }
 
+        // Check if date has exception blocked (recurring none)
         $exceptionExists = BookingException::where('bookable_id', $bookable_id)
+            ->where('recurring_type', 'none')
             ->where('type', 'block')
             ->where('start_datetime', '<', $start)
             ->where('end_datetime', '>', $end)
             ->exists();
 
+        // Find available exceptions to add to timeslots (recurring none)
         $available_exception = BookingException::where('bookable_id', $bookable_id)
+            ->where('recurring_type', 'none')
             ->where('type', 'available')
             ->where('start_datetime', '>', $date)
             ->where('end_datetime', '<', $end)
             ->first();
 
+        // TODO : recurring type daily and weekly
+
+        // Add timeslots
         while ($start->lt($end)) {
             $slotStart = $start->copy();
             $slotEnd = $start->addMinutes($this->slot_duration);
@@ -83,7 +92,7 @@ class BookableAvailability extends Model
                     'end' => $slotEnd->format('H:i'),
                 ];
 
-                if(in_array($new_slot, $unavailable_slots) || $exceptionExists){
+                if(in_array($new_slot, $unavailable_slots) || $exceptionExists || ($slotStart <= now())){
                     continue;
                 }
 
@@ -101,7 +110,7 @@ class BookableAvailability extends Model
                         'end' => $exceptionSlotEnd->format('H:i'),
                     ];
 
-                    if(in_array($new_slot, $unavailable_slots) || $exceptionExists){
+                    if(in_array($new_slot, $unavailable_slots) || $exceptionExists || ($exceptionSlotStart <= now())){
                         continue;
                     }
 
@@ -109,6 +118,27 @@ class BookableAvailability extends Model
                 }
             }
         }
+
+        // Get daily exception time slots;
+        $dailyExceptions = BookingException::where('bookable_id', $bookable_id)
+            ->where('recurring_type', 'daily')
+            ->where('type', 'block')
+            ->get();
+
+        foreach($dailyExceptions as $dailyException){
+            $exception_start = $dailyException->start_time;
+            $exception_end = $dailyException->end_time;
+
+            foreach($slots as $key => $slot){
+                if(($exception_start > $slot['start'] && $exception_start < $slot['end']) ||
+                    ($exception_end > $slot['start'] && $exception_end < $slot['end']) ||
+                    ($slot['start'] >= $exception_start && $slot['end'] <= $exception_end)) {
+                        unset($slots[$key]);
+                }
+            }
+        }
+
+        $slots = array_values($slots);
 
         return $slots;
     }
