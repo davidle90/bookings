@@ -47,11 +47,19 @@
 
             <input type="hidden" name="bookable_id" value="{{ $bookable->id }}">
 
+            <div>
+                <label class="block mb-2 text-sm font-medium text-gray-900" for="booking_type">Bokningstyp:</label>
+                <select name="booking_type" id="booking_type" class="text-sm rounded border-gray-300 text-gray-900 bg-gray-50">
+                    <option value="full_days" @if(isset($bookable) && !$bookable->availabilities->isEmpty() && $bookable->availabilities->first()->booking_type == 'full_dayes') selected @endif>Hela dagar</option>
+                    <option value="timeslots" @if(isset($bookable) && !$bookable->availabilities->isEmpty() && $bookable->availabilities->first()->booking_type == 'timeslots') selected @endif>Tidslucka</option>
+                </select>
+            </div>
+
             <!-- Days of the Week and Availability Times -->
             <label class="block font-semibold">Select Available Days:</label>
             <div class="flex flex-col gap-4">
                 @foreach($days as $day => $label)
-                    <div class="day-container flex flex-row gap-2">
+                    <div class="flex flex-row gap-2">
                         <label class="block flex items-center gap-2">
                             <input 
                                 type="checkbox" 
@@ -65,12 +73,12 @@
                         </label>
 
                         <!-- Time Inputs (Hidden by Default) -->
-                        <div class="day-time-container flex items-center gap-2 mt-1" data-day="{{ $day }}">
+                        <div class="timeslots_booking hidden flex items-center gap-2 mt-1" data-day="{{ $day }}">
                             <!-- Start Time Input -->
                             <input 
                                 type="time" 
                                 name="days_of_week[{{ $day }}][start_time]" 
-                                value="{{ old('days_of_week.' . $day . '.start_time', isset($bookable) && $bookable->availabilities->where('day_of_week', $day)->first() ? $bookable->availabilities->where('day_of_week', $day)->first()->start_time : '00:00') }}" 
+                                value="{{ old('days_of_week.' . $day . '.start_time', isset($bookable) && $bookable->availabilities->where('day_of_week', $day)->first() ? $bookable->availabilities->where('day_of_week', $day)->first()->start_time : '08:00') }}" 
                                 class="border border-gray-300 rounded px-2 py-1 day-time day-time-start"
                                 data-day="{{ $day }}"
                                 @if(!old('days_of_week.' . $day . '.enabled') && !isset($bookable)) disabled @endif
@@ -80,7 +88,7 @@
                             <input 
                                 type="time" 
                                 name="days_of_week[{{ $day }}][end_time]" 
-                                value="{{ old('days_of_week.' . $day . '.end_time', isset($bookable) && $bookable->availabilities->where('day_of_week', $day)->first() ? $bookable->availabilities->where('day_of_week', $day)->first()->end_time : '00:00') }}" 
+                                value="{{ old('days_of_week.' . $day . '.end_time', isset($bookable) && $bookable->availabilities->where('day_of_week', $day)->first() ? $bookable->availabilities->where('day_of_week', $day)->first()->end_time : '17:00') }}" 
                                 class="border border-gray-300 rounded px-2 py-1 day-time day-time-end"
                                 data-day="{{ $day }}"
                                 @if(!old('days_of_week.' . $day . '.enabled') && !isset($bookable)) disabled @endif
@@ -89,13 +97,9 @@
                     </div>
                 @endforeach
             </div>
-            
-            <div class="text-3xl">
-                Sätt undantag här. tex lunchtider
-            </div>
 
             <!-- Slot Duration -->
-            <div>
+            <div class="timeslots_booking hidden">
                 <label class="block font-semibold">Slot Duration (minutes):</label>
                 <input 
                     type="number" 
@@ -122,4 +126,24 @@
 
 @section('scripts')
     @include('bookings::includes.scripts.form')
+
+    <script>
+        $(document).ready(function () {
+            if($('select[name=booking_type]').val() == 'full_days'){
+                $('.timeslots_booking').addClass('hidden');
+            } else {
+                $('.timeslots_booking').removeClass('hidden');
+            }
+
+            $('select[name=booking_type]').on('change', function () {
+                if($(this).val() == 'full_days'){
+                    $('.timeslots_booking').addClass('hidden');
+                }
+
+                if($(this).val() == 'timeslots'){
+                    $('.timeslots_booking').removeClass('hidden');
+                }
+            });
+        });
+    </script>
 @endsection

@@ -44,8 +44,11 @@ class ExceptionsController extends Controller
             'id' => $request->input('id'),
             'label' => $request->input('label'),
             'bookable_id' => $request->input('bookable_id'),
+            'recurring_type' => $request->input('recurring_type'),
             'start_datetime' => $request->input('start_datetime'),
             'end_datetime' => $request->input('end_datetime'),
+            'start_time' => $request->input('start_time'),
+            'end_time' => $request->input('end_time'),
             'type' => $request->input('type'),
             'notes' => $request->input('notes'),
             'is_global' => $request->input('is_global', 0)
@@ -58,8 +61,14 @@ class ExceptionsController extends Controller
 
             $exception->label = $input['label'];
             $exception->bookable_id = $input['bookable_id'] ?? null;
+            $exception->recurring_type = $input['recurring_type'];
+
             $exception->start_datetime = $input['start_datetime'] ?? null;
             $exception->end_datetime = $input['end_datetime'] ?? null;
+
+            $exception->start_time = $input['start_time'] ?? null;
+            $exception->end_time = $input['end_time'] ?? null;
+
             $exception->type = $input['type'];
             $exception->notes = $input['notes'] ?? null;
             $exception->is_global = $input['is_global'];

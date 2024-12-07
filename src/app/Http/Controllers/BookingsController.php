@@ -168,12 +168,10 @@ class BookingsController extends Controller
             ->where('type', 'available')
             ->get();
 
-
         // Collect time slots from both
         if ($availability) {
             $time_slots = array_merge($time_slots, $availability->generateTimeSlots($formatted_date));
         }
-
 
         foreach($available_exceptions as $available_exception){
             $formatted_exeption_date = Carbon::create($available_exception->start_datetime)->format('Y-m-d');

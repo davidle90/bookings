@@ -65,35 +65,77 @@
                 </select>
             </div>
 
-            <div id="start_datetime" class="mb-5">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="flex flex-col gap-2">
-                        <label for="start_datetime" class="text-sm font-medium text-gray-700">Start:</label>
-                        <input 
-                            type="datetime-local" 
-                            id="start_datetime" 
-                            name="start_datetime" 
-                            value="{{ $exception->start_datetime ?? now()->format('Y-m-d H:i') }}" 
-                            class="px-3 py-2 text-sm rounded-lg border border-gray-300 text-gray-900 bg-gray-50 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200 ease-in-out"
-                        >
-                    </div>
-                </div>
-            </div>            
+            <div class="mb-5">
+                <label class="block mb-2 text-sm font-medium text-gray-900" for="recurring_type">Återkommande typ:</label>
+                <select name="recurring_type" id="recurring_type" class="text-sm rounded border-gray-300 text-gray-900 bg-gray-50">
+                    <option value="none" @if(isset($exception) && $exception->recurring_type == 'none') selected @endif>Ingen</option>
+                    <option value="daily" @if(isset($exception) && $exception->recurring_type == 'daily') selected @endif>Dagligen</option>
+                </select>
+            </div>
 
-            <div id="end_datetime" class="mb-5">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="flex flex-col gap-2">
-                        <label for="end_datetime" class="text-sm font-medium text-gray-700">End:</label>
-                        <input 
-                            type="datetime-local" 
-                            id="end_datetime" 
-                            name="end_datetime" 
-                            value="{{ $exception->end_datetime ?? now()->format('Y-m-d H:i') }}" 
-                            class="px-3 py-2 text-sm rounded-lg border border-gray-300 text-gray-900 bg-gray-50 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200 ease-in-out"
-                        >
+            <div class="exception_time hidden">
+                <div id="start_time" class="mb-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="flex flex-col gap-2">
+                            <label for="start_time" class="text-sm font-medium text-gray-700">Start:</label>
+                            <input 
+                                type="time" 
+                                id="start_time" 
+                                name="start_time" 
+                                value="{{ $exception->start_time ?? now()->format('H:i') }}" 
+                                class="px-3 py-2 text-sm rounded-lg border border-gray-300 text-gray-900 bg-gray-50 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200 ease-in-out"
+                            >
+                        </div>
                     </div>
-                </div>
-            </div> 
+                </div>            
+    
+                <div id="end_time" class="mb-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="flex flex-col gap-2">
+                            <label for="end_time" class="text-sm font-medium text-gray-700">End:</label>
+                            <input 
+                                type="time" 
+                                id="end_time" 
+                                name="end_time" 
+                                value="{{ $exception->end_time ?? now()->addHour()->format('H:i') }}" 
+                                class="px-3 py-2 text-sm rounded-lg border border-gray-300 text-gray-900 bg-gray-50 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200 ease-in-out"
+                            >
+                        </div>
+                    </div>
+                </div> 
+            </div>
+
+            <div class="exception_datetime">
+                <div id="start_datetime" class="mb-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="flex flex-col gap-2">
+                            <label for="start_datetime" class="text-sm font-medium text-gray-700">Start:</label>
+                            <input 
+                                type="datetime-local" 
+                                id="start_datetime" 
+                                name="start_datetime" 
+                                value="{{ $exception->start_datetime ?? now()->format('Y-m-d H:i') }}" 
+                                class="px-3 py-2 text-sm rounded-lg border border-gray-300 text-gray-900 bg-gray-50 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200 ease-in-out"
+                            >
+                        </div>
+                    </div>
+                </div>            
+    
+                <div id="end_datetime" class="mb-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="flex flex-col gap-2">
+                            <label for="end_datetime" class="text-sm font-medium text-gray-700">End:</label>
+                            <input 
+                                type="datetime-local" 
+                                id="end_datetime" 
+                                name="end_datetime" 
+                                value="{{ $exception->end_datetime ?? now()->format('Y-m-d H:i') }}" 
+                                class="px-3 py-2 text-sm rounded-lg border border-gray-300 text-gray-900 bg-gray-50 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200 ease-in-out"
+                            >
+                        </div>
+                    </div>
+                </div> 
+            </div>
 
             <div class="mb-5">
                 <label for="type" class="block mb-2 text-sm font-medium text-gray-900">Type</label>
@@ -136,5 +178,28 @@
 @endsection
 
 @section('scripts')
-    @include('bookings::includes.scripts.form') 
+    @include('bookings::includes.scripts.form')
+    <script>
+        $(document).ready(function () {
+            if($('select[name=recurring_type]').val() == 'none'){
+                $('.exception_datetime').removeClass('hidden');
+                $('.exception_time').addClass('hidden');
+            } else if($('select[name=recurring_type]').val() == 'daily') {
+                $('.exception_datetime').addClass('hidden');
+                $('.exception_time').removeClass('hidden');
+            }
+
+            $('select[name=recurring_type]').on('change', function () {
+                if($(this).val() == 'none'){
+                    $('.exception_datetime').removeClass('hidden');
+                    $('.exception_time').addClass('hidden');
+                }
+
+                if($(this).val() == 'daily'){
+                    $('.exception_datetime').addClass('hidden');
+                    $('.exception_time').removeClass('hidden');
+                }
+            });
+        });
+    </script>
 @endsection

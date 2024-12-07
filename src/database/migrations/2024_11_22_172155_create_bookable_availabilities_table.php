@@ -16,10 +16,13 @@ return new class extends Migration
         Schema::create('bookable_availabilities', function (Blueprint $table) {
             $table->id();
             $table->foreignId('bookable_id')->constrained()->onDelete('cascade');
-            $table->enum('day_of_week', ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']);
-            $table->time('start_time');
-            $table->time('end_time');
-            $table->integer('slot_duration');
+            $table->enum('booking_type', ['full_days', 'timeslots']);
+            
+            $table->enum('day_of_week', ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'])->nullable();
+            $table->time('start_time')->nullable();
+            $table->time('end_time')->nullable();
+            $table->integer('slot_duration')->nullable();
+
             $table->timestamps();
         });
     }

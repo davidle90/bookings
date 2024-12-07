@@ -45,7 +45,6 @@ class AvailabilitiesController extends Controller
             DB::beginTransaction();
 
             foreach ($input['days_of_week'] as $day => $data) {
-
                 if (empty($data['enabled'])) {
                     $delete_availability = BookableAvailability::where('bookable_id', $input['bookable_id'])->where('day_of_week', $day)->first();
                     if($delete_availability){
@@ -59,8 +58,9 @@ class AvailabilitiesController extends Controller
                     'day_of_week' => $day,
                 ]);
 
-                $availability->start_time = isset($data['start_time']) ? $data['start_time'] : '00:00';
-                $availability->end_time = isset($data['end_time']) ? $data['end_time'] : '00:00';
+                $availability->start_time = isset($data['start_time']) ? $data['start_time'] : null;
+                $availability->end_time = isset($data['end_time']) ? $data['end_time'] : null;
+                $availability->booking_type = $input['booking_type'];
 
                 if($availability->start_time > $availability->end_time){
                     $response = [
@@ -71,7 +71,7 @@ class AvailabilitiesController extends Controller
                     return response()->json($response);
                 }
 
-                $availability->slot_duration = $input['slot_duration'] ?? 60;
+                $availability->slot_duration = $input['slot_duration'] ?? 0;
 
                 $availability->save();
             }

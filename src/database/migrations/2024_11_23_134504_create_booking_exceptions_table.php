@@ -18,8 +18,15 @@ return new class extends Migration
             $table->string('label');
             $table->foreignId('bookable_id')->nullable()->constrained();
             $table->enum('type', ['block', 'available'])->default('block');
+
+            $table->enum('recurring_type', ['none', 'daily', 'weekly'])->default('none');
+            
             $table->dateTime('start_datetime')->nullable();
             $table->dateTime('end_datetime')->nullable();
+
+            $table->time('start_time')->nullable();
+            $table->time('end_time')->nullable();
+
             $table->text('notes')->nullable();
             $table->boolean('is_global')->default('false');
             $table->timestamps();
